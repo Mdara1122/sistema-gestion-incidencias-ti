@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Incidencias TI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <p class="eyebrow">Soporte de TI</p>
+            <h1>Sistema de Gestión de Incidencias</h1>
+            <p class="intro">Un espacio para registrar problemas y dar seguimiento a su resolución.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="panel" aria-labelledby="incidencias-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Panel principal</p>
+                    <h2 id="incidencias-title">Incidencias</h2>
+                </div>
+                <span class="status-badge">Vista inicial</span>
+            </div>
+            <div class="empty-state">
+                <h3>La pantalla inicial está lista</h3>
+                <p>En esta sección aparecerá la lista de incidencias.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container page-footer">
+        Proyecto personal de portafolio · Flask
+    </footer>
+</body>
+</html>
+
