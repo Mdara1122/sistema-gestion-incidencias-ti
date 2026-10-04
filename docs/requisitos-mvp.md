@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión de Incidencias TI  
 **Versión:** 1.0  
-**Estado:** requisitos y modelo de datos inicial aprobados; esquema y tablas creados en MySQL Workbench
+**Estado:** requisitos y modelo de datos inicial aprobados; esquema y tablas creados en MySQL Workbench; primera estructura Flask creada
 
 ## 1. Propósito
 
@@ -64,7 +64,7 @@ Se pueden reevaluar después de tener el flujo principal funcionando.
 
 ## 6. Estructura inicial prevista
 
-Esta es la estructura acordada para iniciar la aplicación. Se puede ajustar a medida que aparezcan necesidades concretas.
+Esta es la estructura inicial acordada para la aplicación. La ruta principal, la plantilla y los estilos básicos ya están creados; se agregarán otras piezas cuando el proyecto las necesite.
 
 ```text
 incidencias-ti/
@@ -113,5 +113,5 @@ Las tres tablas (`usuarios`, `categorias`, `incidencias`) ya se crearon correcta
 
 ## 9. Próximo paso
 
-Crear el esqueleto mínimo de Flask y comprobar que puede mostrar una página HTML. Después conectaremos la aplicación a MySQL.
+Clonar el repositorio, instalar Flask dentro de un entorno virtual y ejecutar la página localmente. Después conectaremos la aplicación a MySQL.
 
