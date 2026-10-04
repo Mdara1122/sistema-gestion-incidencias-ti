@@ -4,7 +4,7 @@ Proyecto personal de portafolio para registrar, asignar y dar seguimiento a inci
 
 ## Estado
 
-Etapa de análisis completada: requisitos y modelo inicial de datos definidos y creados en MySQL Workbench. La aplicación Flask aún está por desarrollarse. El alcance y las decisiones acordadas están en [Requisitos y alcance](docs/requisitos-mvp.md).
+Primera estructura de Flask creada: la aplicación sirve una página HTML con estilos básicos. Todavía falta conectarla a MySQL. El alcance y las decisiones acordadas están en [Requisitos y alcance](docs/requisitos-mvp.md).
 
 ## Objetivo
 
@@ -24,4 +24,28 @@ Una persona usuaria puede reportar incidencias y consultar su estado. Una person
 ## Documentación
 
 - [Requisitos funcionales, no funcionales y alcance del MVP](docs/requisitos-mvp.md)
+
+## Ejecutar localmente
+
+1. Cloná el repositorio y entrá a su carpeta:
+
+   ```powershell
+   git clone https://github.com/Mdara1122/sistema-gestion-incidencias-ti.git
+   cd sistema-gestion-incidencias-ti
+   ```
+
+2. Creá un entorno virtual para mantener las dependencias de este proyecto separadas:
+
+   ```powershell
+   python -m venv .venv
+   ```
+
+3. Instalá Flask dentro de ese entorno y ejecutá la aplicación:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   .\.venv\Scripts\python.exe run.py
+   ```
+
+4. Abrí `http://127.0.0.1:5000` en el navegador.
 
