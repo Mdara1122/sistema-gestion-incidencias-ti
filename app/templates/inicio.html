@@ -11,22 +11,197 @@
         <div class="container">
             <p class="eyebrow">Soporte de TI</p>
             <h1>Sistema de Gestión de Incidencias</h1>
-            <p class="intro">Un espacio para registrar problemas y dar seguimiento a su resolución.</p>
+            <p class="intro">
+                Un espacio para registrar problemas y dar seguimiento a su resolución.
+            </p>
         </div>
     </header>
 
     <main class="container">
+        <section class="panel" aria-labelledby="nueva-incidencia-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Registrar</p>
+                    <h2 id="nueva-incidencia-title">Nueva incidencia</h2>
+                </div>
+            </div>
+
+            <div class="form-content">
+                {% if creada %}
+                <p class="form-message success" role="status">
+                    La incidencia se registró correctamente.
+                </p>
+                {% endif %}
+
+                {% if error %}
+                <p class="form-message error" role="alert">
+                    Revisá los datos del formulario e intentá de nuevo.
+                </p>
+                {% endif %}
+
+                <form action="{{ url_for('main.crear_incidencia') }}" method="post">
+                    <div class="form-field">
+                        <label for="titulo">Título</label>
+                        <input
+                            type="text"
+                            id="titulo"
+                            name="titulo"
+                            maxlength="150"
+                            required
+                            placeholder="Ejemplo: La impresora no responde"
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="descripcion">Descripción</label>
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            rows="4"
+                            required
+                            placeholder="Describí el problema y cuándo comenzó"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="categoria_id">Categoría</label>
+                            <select id="categoria_id" name="categoria_id" required>
+                                <option value="" selected disabled>
+                                    Seleccioná una categoría
+                                </option>
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}">
+                                    {{ categoria.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="prioridad">Prioridad</label>
+                            <select id="prioridad" name="prioridad" required>
+                                <option value="baja">Baja</option>
+                                <option value="media" selected>Media</option>
+                                <option value="alta">Alta</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="solicitante_id">Solicitante</label>
+                            <select id="solicitante_id" name="solicitante_id" required>
+                                <option value="" selected disabled>
+                                    Seleccioná un solicitante
+                                </option>
+                                {% for solicitante in solicitantes %}
+                                <option value="{{ solicitante.id }}">
+                                    {{ solicitante.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit">Registrar incidencia</button>
+                </form>
+            </div>
+        </section>
+
         <section class="panel" aria-labelledby="incidencias-title">
             <div class="panel-heading">
                 <div>
                     <p class="eyebrow">Panel principal</p>
                     <h2 id="incidencias-title">Incidencias</h2>
                 </div>
-                <span class="status-badge">Vista inicial</span>
+                <span class="status-badge">{{ incidencias|length }} en total</span>
             </div>
-            <div class="empty-state">
-                <h3>La pantalla inicial está lista</h3>
-                <p>En esta sección aparecerá la lista de incidencias.</p>
+
+            <div class="table-wrapper">
+                <table class="incidents-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Solicitante</th>
+                            <th>Técnico asignado</th>
+                            <th>Creada</th>
+                            <th>Actualizar estado</th>
+                            <th>Asignar técnico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for incidencia in incidencias %}
+                        <tr>
+                            <td>{{ incidencia.id }}</td>
+                            <td>{{ incidencia.titulo }}</td>
+                            <td>{{ incidencia.categoria }}</td>
+                            <td>{{ incidencia.prioridad }}</td>
+                            <td>{{ incidencia.estado }}</td>
+                            <td>{{ incidencia.solicitante }}</td>
+                            <td>{{ incidencia.tecnico_asignado or "Sin asignar" }}</td>
+                            <td>{{ incidencia.creada_en.strftime("%d/%m/%Y %H:%M") }}</td>
+                            <td>
+                                <form
+                                    class="status-form"
+                                    action="{{ url_for('main.cambiar_estado', incidencia_id=incidencia.id) }}"
+                                    method="post"
+                                    aria-label="Cambiar estado de incidencia {{ incidencia.id }}"
+                                >
+                                    <select name="estado" aria-label="Nuevo estado">
+                                        <option value="abierta"
+                                            {% if incidencia.estado == "abierta" %}selected{% endif %}>
+                                            Abierta
+                                        </option>
+                                        <option value="en_proceso"
+                                            {% if incidencia.estado == "en_proceso" %}selected{% endif %}>
+                                            En proceso
+                                        </option>
+                                        <option value="resuelta"
+                                            {% if incidencia.estado == "resuelta" %}selected{% endif %}>
+                                            Resuelta
+                                        </option>
+                                    </select>
+                                    <button type="submit">Guardar</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form
+                                    class="status-form"
+                                    action="{{ url_for('main.asignar_tecnico', incidencia_id=incidencia.id) }}"
+                                    method="post"
+                                    aria-label="Asignar técnico a incidencia {{ incidencia.id }}"
+                                >
+                                    <select name="tecnico_id" required aria-label="Técnico">
+                                        <option
+                                            value=""
+                                            disabled
+                                            {% if not incidencia.tecnico_id %}selected{% endif %}
+                                        >
+                                            Seleccioná
+                                        </option>
+                                        {% for tecnico in tecnicos %}
+                                        <option
+                                            value="{{ tecnico.id }}"
+                                            {% if incidencia.tecnico_id == tecnico.id %}selected{% endif %}
+                                        >
+                                            {{ tecnico.nombre }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit">Asignar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="10">Todavía no hay incidencias registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>
@@ -36,4 +211,3 @@
     </footer>
 </body>
 </html>
-
