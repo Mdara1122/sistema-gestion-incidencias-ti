@@ -11,109 +11,138 @@
         <div class="container">
             <p class="eyebrow">Soporte de TI</p>
             <h1>Sistema de Gestión de Incidencias</h1>
-            <p class="intro">
-                Un espacio para registrar problemas y dar seguimiento a su resolución.
-            </p>
+            <p>Un espacio para registrar problemas y dar seguimiento a su resolución.</p>
         </div>
     </header>
 
     <main class="container">
-        <section class="panel" aria-labelledby="nueva-incidencia-title">
+        {% if error %}
+            <div class="alert" role="alert">{{ error }}</div>
+        {% endif %}
+
+        <section class="panel" aria-labelledby="form-title">
             <div class="panel-heading">
                 <div>
                     <p class="eyebrow">Registrar</p>
-                    <h2 id="nueva-incidencia-title">Nueva incidencia</h2>
+                    <h2 id="form-title">Nueva incidencia</h2>
                 </div>
             </div>
 
-            <div class="form-content">
-                {% if creada %}
-                <p class="form-message success" role="status">
-                    La incidencia se registró correctamente.
-                </p>
-                {% endif %}
+            <form class="incident-form" action="/incidencias" method="post">
+                <div class="form-field">
+                    <label for="titulo">Título</label>
+                    <input
+                        id="titulo"
+                        name="titulo"
+                        type="text"
+                        placeholder="Ejemplo: La impresora no responde"
+                        required
+                    >
+                </div>
 
-                {% if error %}
-                <p class="form-message error" role="alert">
-                    Revisá los datos del formulario e intentá de nuevo.
-                </p>
-                {% endif %}
+                <div class="form-field">
+                    <label for="descripcion">Descripción</label>
+                    <textarea
+                        id="descripcion"
+                        name="descripcion"
+                        rows="5"
+                        placeholder="Describí el problema y cuándo comenzó"
+                        required
+                    ></textarea>
+                </div>
 
-                <form action="{{ url_for('main.crear_incidencia') }}" method="post">
+                <div class="form-row">
                     <div class="form-field">
-                        <label for="titulo">Título</label>
+                        <label for="categoria_id">Categoría</label>
+                        <select id="categoria_id" name="categoria_id" required>
+                            <option value="">Seleccioná una categoría</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="prioridad">Prioridad</label>
+                        <select id="prioridad" name="prioridad" required>
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="solicitante_id">Solicitante</label>
+                        <select id="solicitante_id" name="solicitante_id" required>
+                            <option value="">Seleccioná un solicitante</option>
+                            {% for solicitante in solicitantes %}
+                                <option value="{{ solicitante.id }}">{{ solicitante.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <button class="button" type="submit">Registrar incidencia</button>
+            </form>
+        </section>
+
+        <section class="panel" aria-labelledby="incidents-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Panel principal</p>
+                    <h2 id="incidents-title">Incidencias</h2>
+                </div>
+                <span class="count-badge" id="visible-count">
+                    {{ incidencias|length }} en total
+                </span>
+            </div>
+
+            <dl class="detail-grid" aria-label="Resumen de incidencias">
+                <div>
+                    <dt>Abiertas</dt>
+                    <dd id="count-open">0</dd>
+                </div>
+                <div>
+                    <dt>En proceso</dt>
+                    <dd id="count-progress">0</dd>
+                </div>
+                <div>
+                    <dt>Resueltas</dt>
+                    <dd id="count-resolved">0</dd>
+                </div>
+            </dl>
+
+            <div class="incident-form">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="search-title">Buscar por título</label>
                         <input
-                            type="text"
-                            id="titulo"
-                            name="titulo"
-                            maxlength="150"
-                            required
-                            placeholder="Ejemplo: La impresora no responde"
+                            id="search-title"
+                            type="search"
+                            placeholder="Escribí el título..."
                         >
                     </div>
 
                     <div class="form-field">
-                        <label for="descripcion">Descripción</label>
-                        <textarea
-                            id="descripcion"
-                            name="descripcion"
-                            rows="4"
-                            required
-                            placeholder="Describí el problema y cuándo comenzó"
-                        ></textarea>
+                        <label for="filter-state">Filtrar por estado</label>
+                        <select id="filter-state">
+                            <option value="">Todos los estados</option>
+                            <option value="abierta">Abierta</option>
+                            <option value="en_proceso">En proceso</option>
+                            <option value="resuelta">Resuelta</option>
+                        </select>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="categoria_id">Categoría</label>
-                            <select id="categoria_id" name="categoria_id" required>
-                                <option value="" selected disabled>
-                                    Seleccioná una categoría
-                                </option>
-                                {% for categoria in categorias %}
-                                <option value="{{ categoria.id }}">
-                                    {{ categoria.nombre }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="prioridad">Prioridad</label>
-                            <select id="prioridad" name="prioridad" required>
-                                <option value="baja">Baja</option>
-                                <option value="media" selected>Media</option>
-                                <option value="alta">Alta</option>
-                            </select>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="solicitante_id">Solicitante</label>
-                            <select id="solicitante_id" name="solicitante_id" required>
-                                <option value="" selected disabled>
-                                    Seleccioná un solicitante
-                                </option>
-                                {% for solicitante in solicitantes %}
-                                <option value="{{ solicitante.id }}">
-                                    {{ solicitante.nombre }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                    <div class="form-field">
+                        <label for="filter-priority">Filtrar por prioridad</label>
+                        <select id="filter-priority">
+                            <option value="">Todas las prioridades</option>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                        </select>
                     </div>
-
-                    <button type="submit">Registrar incidencia</button>
-                </form>
-            </div>
-        </section>
-
-        <section class="panel" aria-labelledby="incidencias-title">
-            <div class="panel-heading">
-                <div>
-                    <p class="eyebrow">Panel principal</p>
-                    <h2 id="incidencias-title">Incidencias</h2>
                 </div>
-                <span class="status-badge">{{ incidencias|length }} en total</span>
             </div>
 
             <div class="table-wrapper">
@@ -130,76 +159,91 @@
                             <th>Creada</th>
                             <th>Actualizar estado</th>
                             <th>Asignar técnico</th>
+                            <th>Detalle</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="incidents-list">
                         {% for incidencia in incidencias %}
-                        <tr>
-                            <td>{{ incidencia.id }}</td>
-                            <td>{{ incidencia.titulo }}</td>
-                            <td>{{ incidencia.categoria }}</td>
-                            <td>{{ incidencia.prioridad }}</td>
-                            <td>{{ incidencia.estado }}</td>
-                            <td>{{ incidencia.solicitante }}</td>
-                            <td>{{ incidencia.tecnico_asignado or "Sin asignar" }}</td>
-                            <td>{{ incidencia.creada_en.strftime("%d/%m/%Y %H:%M") }}</td>
-                            <td>
-                                <form
-                                    class="status-form"
-                                    action="{{ url_for('main.cambiar_estado', incidencia_id=incidencia.id) }}"
-                                    method="post"
-                                    aria-label="Cambiar estado de incidencia {{ incidencia.id }}"
-                                >
-                                    <select name="estado" aria-label="Nuevo estado">
-                                        <option value="abierta"
-                                            {% if incidencia.estado == "abierta" %}selected{% endif %}>
-                                            Abierta
-                                        </option>
-                                        <option value="en_proceso"
-                                            {% if incidencia.estado == "en_proceso" %}selected{% endif %}>
-                                            En proceso
-                                        </option>
-                                        <option value="resuelta"
-                                            {% if incidencia.estado == "resuelta" %}selected{% endif %}>
-                                            Resuelta
-                                        </option>
-                                    </select>
-                                    <button type="submit">Guardar</button>
-                                </form>
-                            </td>
-                            <td>
-                                <form
-                                    class="status-form"
-                                    action="{{ url_for('main.asignar_tecnico', incidencia_id=incidencia.id) }}"
-                                    method="post"
-                                    aria-label="Asignar técnico a incidencia {{ incidencia.id }}"
-                                >
-                                    <select name="tecnico_id" required aria-label="Técnico">
-                                        <option
-                                            value=""
-                                            disabled
-                                            {% if not incidencia.tecnico_id %}selected{% endif %}
-                                        >
-                                            Seleccioná
-                                        </option>
-                                        {% for tecnico in tecnicos %}
-                                        <option
-                                            value="{{ tecnico.id }}"
-                                            {% if incidencia.tecnico_id == tecnico.id %}selected{% endif %}
-                                        >
-                                            {{ tecnico.nombre }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <button type="submit">Asignar</button>
-                                </form>
-                            </td>
-                        </tr>
+                            <tr
+                                data-incidencia
+                                data-state="{{ incidencia.estado|lower }}"
+                                data-priority="{{ incidencia.prioridad|lower }}"
+                            >
+                                <td>{{ incidencia.id }}</td>
+                                <td>{{ incidencia.titulo }}</td>
+                                <td>{{ incidencia.categoria }}</td>
+                                <td>{{ incidencia.prioridad }}</td>
+                                <td>{{ incidencia.estado }}</td>
+                                <td>{{ incidencia.solicitante }}</td>
+                                <td>{{ incidencia.tecnico_asignado or "Sin asignar" }}</td>
+                                <td>{{ incidencia.creada_en }}</td>
+
+                                <td>
+                                    <form
+                                        class="status-form"
+                                        action="/incidencias/{{ incidencia.id }}/estado"
+                                        method="post"
+                                    >
+                                        <select name="estado" aria-label="Nuevo estado">
+                                            <option value="abierta" {% if incidencia.estado == "abierta" %}selected{% endif %}>
+                                                Abierta
+                                            </option>
+                                            <option value="en_proceso" {% if incidencia.estado == "en_proceso" %}selected{% endif %}>
+                                                En proceso
+                                            </option>
+                                            <option value="resuelta" {% if incidencia.estado == "resuelta" %}selected{% endif %}>
+                                                Resuelta
+                                            </option>
+                                        </select>
+                                        <button class="button button-small" type="submit">Guardar</button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <form
+                                        class="status-form"
+                                        action="/incidencias/{{ incidencia.id }}/tecnico"
+                                        method="post"
+                                    >
+                                        <select name="tecnico_id" aria-label="Técnico asignado">
+                                            <option value="">Sin asignar</option>
+                                            {% for tecnico in tecnicos %}
+                                                <option
+                                                    value="{{ tecnico.id }}"
+                                                    {% if incidencia.tecnico_id == tecnico.id %}selected{% endif %}
+                                                >
+                                                    {{ tecnico.nombre }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <button class="button button-small" type="submit">Asignar</button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <a
+                                        class="button-link"
+                                        href="{{ url_for('main.ver_incidencia', incidencia_id=incidencia.id) }}"
+                                    >
+                                        Ver detalle
+                                    </a>
+                                </td>
+                            </tr>
                         {% else %}
-                        <tr>
-                            <td colspan="10">Todavía no hay incidencias registradas.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="11" class="empty-state">
+                                    Todavía no hay incidencias registradas.
+                                </td>
+                            </tr>
                         {% endfor %}
+
+                        {% if incidencias %}
+                            <tr id="no-filter-results" hidden>
+                                <td colspan="11" class="empty-state">
+                                    No hay incidencias que coincidan con esos filtros.
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -209,5 +253,82 @@
     <footer class="container page-footer">
         Proyecto personal de portafolio · Flask
     </footer>
+
+    <script>
+        const searchInput = document.getElementById("search-title");
+        const stateFilter = document.getElementById("filter-state");
+        const priorityFilter = document.getElementById("filter-priority");
+        const countLabel = document.getElementById("visible-count");
+        const noResultsRow = document.getElementById("no-filter-results");
+        const incidentRows = Array.from(
+            document.querySelectorAll("#incidents-list tr[data-incidencia]")
+        );
+
+        function normalizeText(value) {
+            return value
+                .toLocaleLowerCase("es")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function updateSummary() {
+            const counts = {
+                abierta: 0,
+                en_proceso: 0,
+                resuelta: 0
+            };
+
+            incidentRows.forEach((row) => {
+                const state = row.dataset.state;
+                if (Object.prototype.hasOwnProperty.call(counts, state)) {
+                    counts[state] += 1;
+                }
+            });
+
+            document.getElementById("count-open").textContent = counts.abierta;
+            document.getElementById("count-progress").textContent = counts.en_proceso;
+            document.getElementById("count-resolved").textContent = counts.resuelta;
+        }
+
+        function filterIncidents() {
+            const searchText = normalizeText(searchInput.value);
+            const selectedState = stateFilter.value;
+            const selectedPriority = priorityFilter.value;
+            let visibleRows = 0;
+
+            incidentRows.forEach((row) => {
+                const title = normalizeText(row.cells[1].textContent);
+                const matchesTitle = title.includes(searchText);
+                const matchesState =
+                    selectedState === "" || row.dataset.state === selectedState;
+                const matchesPriority =
+                    selectedPriority === "" ||
+                    row.dataset.priority === selectedPriority;
+
+                const shouldShow =
+                    matchesTitle && matchesState && matchesPriority;
+
+                row.hidden = !shouldShow;
+
+                if (shouldShow) {
+                    visibleRows += 1;
+                }
+            });
+
+            countLabel.textContent =
+                `${visibleRows} de ${incidentRows.length} visibles`;
+
+            if (noResultsRow) {
+                noResultsRow.hidden = visibleRows !== 0;
+            }
+        }
+
+        updateSummary();
+
+        searchInput.addEventListener("input", filterIncidents);
+        stateFilter.addEventListener("change", filterIncidents);
+        priorityFilter.addEventListener("change", filterIncidents);
+    </script>
 </body>
 </html>

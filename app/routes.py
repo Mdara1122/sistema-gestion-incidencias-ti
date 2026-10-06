@@ -192,3 +192,44 @@ def asignar_tecnico(incidencia_id):
         connection.close()
 
     return redirect(url_for("main.inicio"))
+
+
+@main.get("/incidencias/<int:incidencia_id>")
+def ver_incidencia(incidencia_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute(
+            """
+            SELECT
+                i.id,
+                i.titulo,
+                i.descripcion,
+                c.nombre AS categoria,
+                i.prioridad,
+                i.estado,
+                solicitante.nombre AS solicitante,
+                tecnico.nombre AS tecnico_asignado,
+                i.creada_en,
+                i.actualizada_en
+            FROM incidencias AS i
+            JOIN categorias AS c
+                ON i.categoria_id = c.id
+            JOIN usuarios AS solicitante
+                ON i.solicitante_id = solicitante.id
+            LEFT JOIN usuarios AS tecnico
+                ON i.tecnico_id = tecnico.id
+            WHERE i.id = %s
+            """,
+            (incidencia_id,),
+        )
+        incidencia = cursor.fetchone()
+    finally:
+        cursor.close()
+        connection.close()
+
+    if incidencia is None:
+        return "No se encontró esa incidencia.", 404
+
+    return render_template("detalle.html", incidencia=incidencia)

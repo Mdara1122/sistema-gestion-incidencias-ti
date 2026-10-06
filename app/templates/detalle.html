@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle de incidencia · Incidencias TI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <p class="eyebrow">Soporte de TI</p>
+            <h1>Sistema de Gestión de Incidencias</h1>
+            <p class="intro">Detalle de la incidencia #{{ incidencia.id }}</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="panel" aria-labelledby="detalle-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Incidencia #{{ incidencia.id }}</p>
+                    <h2 id="detalle-title">{{ incidencia.titulo }}</h2>
+                </div>
+                <span class="status-badge">
+                    {% if incidencia.estado == "en_proceso" %}
+                        En proceso
+                    {% elif incidencia.estado == "resuelta" %}
+                        Resuelta
+                    {% else %}
+                        Abierta
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-content">
+                <dl class="detail-grid">
+                    <div>
+                        <dt>Categoría</dt>
+                        <dd>{{ incidencia.categoria }}</dd>
+                    </div>
+                    <div>
+                        <dt>Prioridad</dt>
+                        <dd>{{ incidencia.prioridad|capitalize }}</dd>
+                    </div>
+                    <div>
+                        <dt>Solicitante</dt>
+                        <dd>{{ incidencia.solicitante }}</dd>
+                    </div>
+                    <div>
+                        <dt>Técnico asignado</dt>
+                        <dd>{{ incidencia.tecnico_asignado or "Sin asignar" }}</dd>
+                    </div>
+                    <div>
+                        <dt>Creada</dt>
+                        <dd>{{ incidencia.creada_en.strftime("%d/%m/%Y %H:%M") }}</dd>
+                    </div>
+                    <div>
+                        <dt>Última actualización</dt>
+                        <dd>
+                            {% if incidencia.actualizada_en %}
+                                {{ incidencia.actualizada_en.strftime("%d/%m/%Y %H:%M") }}
+                            {% else %}
+                                Sin actualizar
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+
+                <section class="detail-description" aria-labelledby="descripcion-title">
+                    <h3 id="descripcion-title">Descripción</h3>
+                    <p>{{ incidencia.descripcion }}</p>
+                </section>
+
+                <a class="button-link" href="{{ url_for('main.inicio') }}">
+                    Volver a incidencias
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container page-footer">
+        Proyecto personal de portafolio · Flask
+    </footer>
+</body>
+</html>
